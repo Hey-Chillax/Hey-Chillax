@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""Draw the profile README's banner (assets/banner-light.svg and assets/banner-dark.svg).
+"""Draw the profile README's banner: assets/banner-light.svg and banner-dark.svg, and banner-narrow.svg for phones.
 
 The fonts are the subsets used by the homepage (repo hey-chillax.github.io, assets/fonts), inlined so the banner
-renders the same in every browser when GitHub shows it as an <img>. The project pictures next to it
-(assets/card-*.svg) are exported by the homepage's figure script:
+renders the same in every browser when GitHub shows it as an <img>. The banner holds only the name, affiliation and
+research directions; everything a reader may want to copy or search (status, links, results) stays in the README text.
 
     python3 tools/make_banner.py --fonts ../hey-chillax.github.io/assets/fonts
-    (cd ../hey-chillax.github.io && python3 tools/make_figures.py --export /tmp/cards --embed-fonts --only card-opd card-scr \
-        && python3 tools/make_figures.py --export /tmp/cards --theme dark --embed-fonts --only card-opd card-scr)
-    cp /tmp/cards/en/card-opd.svg assets/card-opd-light.svg; cp /tmp/cards/en/card-opd-dark.svg assets/  # same for card-scr
 """
 import argparse
 import base64
@@ -21,7 +18,7 @@ THEMES = {   # GitHub's own page colours, with the homepage accent
     'dark': dict(card='#161b22', stroke='#30363d', ink='#e6edf3', muted='#9198a1', accent='#8db1e6',
                  pill='#19222f', pill_line='#2f4566', chip='#3a414b', chip_t='#5b8fd6'),
 }
-W, H = 880, 200
+W, H = 880, 184
 
 
 def faces(font_dir):
@@ -37,37 +34,70 @@ def width(s, size, per_char):
     return sum(per_char.get(ch, 0.5) for ch in s) * size
 
 
+def icon(kind, cx, cy, c):
+    """Small line icons in the accent colour."""
+    st = f'fill="{c["pill"]}" stroke="{c["accent"]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"'
+    ln = f'fill="none" stroke="{c["accent"]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"'
+    if kind == 'image':
+        return (f'<rect x="{cx - 10}" y="{cy - 8}" width="20" height="16" rx="3" {st}/>'
+                f'<path d="M{cx - 7},{cy + 5} L{cx - 2},{cy - 1} L{cx + 2},{cy + 3} L{cx + 4},{cy + 1} L{cx + 7},{cy + 5}" {ln}/>'
+                f'<circle cx="{cx + 4}" cy="{cy - 3.5}" r="1.6" fill="{c["accent"]}"/>')
+    if kind == 'relay':
+        return (f'<path d="M{cx - 8},{cy - 1} A8,7 0 0 1 {cx + 7},{cy - 3}" {ln}/><path d="M{cx + 3},{cy - 7} L{cx + 7},{cy - 3} L{cx + 2},{cy - 1}" {ln}/>'
+                f'<path d="M{cx + 8},{cy + 1} A8,7 0 0 1 {cx - 7},{cy + 3}" {ln}/><path d="M{cx - 3},{cy + 7} L{cx - 7},{cy + 3} L{cx - 2},{cy + 1}" {ln}/>')
+    if kind == 'robot':
+        return (f'<rect x="{cx - 9}" y="{cy - 5}" width="18" height="13" rx="3.5" {st}/>'
+                f'<circle cx="{cx - 3.5}" cy="{cy + 1}" r="1.7" fill="{c["accent"]}"/><circle cx="{cx + 3.5}" cy="{cy + 1}" r="1.7" fill="{c["accent"]}"/>'
+                f'<path d="M{cx},{cy - 5} V{cy - 9}" {ln}/><circle cx="{cx}" cy="{cy - 10}" r="1.6" fill="{c["accent"]}"/>')
+    if kind == 'bolt':
+        return f'<path d="M{cx + 2},{cy - 10} L{cx - 6},{cy + 2} L{cx},{cy + 2} L{cx - 2},{cy + 10} L{cx + 6},{cy - 2} L{cx},{cy - 2} Z" {st}/>'
+    raise ValueError(kind)
+
+
+ITEMS = [('image', 'Multimodal LLMs'), ('relay', 'Post-training · SFT → RL → OPD'), ('robot', 'Agentic RL'), ('bolt', 'Efficient inference')]
+SANS = "'YZ Sans', 'Source Sans 3', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+SERIF = "'YZ Serif', 'Source Serif 4', Georgia, serif"
+
+
+def banner_narrow(font_dir):
+    """The stacked banner the README shows on screens under 600 px. One file for both themes: the colours are CSS
+    variables switched by prefers-color-scheme inside the SVG (GitHub's own theme switch only rewrites
+    prefers-color-scheme sources, so the width-based source cannot also carry the theme)."""
+    L, D = THEMES['light'], THEMES['dark']
+    w, h = 440, 318
+    var = lambda c: ';'.join(f'--{k}:{c[k]}' for k in ('card', 'stroke', 'ink', 'muted', 'accent', 'pill'))
+    css = (faces(font_dir) + f':root{{{var(L)}}}@media (prefers-color-scheme: dark){{:root{{{var(D)}}}}}'
+           '.card{fill:var(--card);stroke:var(--stroke)}.ink{fill:var(--ink)}.muted{fill:var(--muted)}.rule{stroke:var(--stroke)}'
+           # the icons are drawn with the light colours; these rules repaint them in the current theme
+           f'[fill="{L["pill"]}"]{{fill:var(--pill)}}[stroke="{L["accent"]}"]{{stroke:var(--accent)}}[fill="{L["accent"]}"]{{fill:var(--accent)}}')
+    parts = [f'<rect class="card" x="1" y="1" width="{w - 2}" height="{h - 2}" rx="14"/>',
+             f'<text class="ink" x="28" y="70" font-family="{SERIF}" font-weight="600" font-size="46" letter-spacing="-0.5">Yi Zhang</text>',
+             f'<text class="muted" x="29" y="104" font-family="{SANS}" font-size="18">M.S. student · Nanjing University</text>',
+             f'<text class="muted" x="29" y="129" font-family="{SANS}" font-size="18">Class of 2028</text>',
+             f'<line class="rule" x1="28" y1="154" x2="{w - 28}" y2="154"/>']
+    for i, (kind, label) in enumerate(ITEMS):
+        y = 188 + i * 35
+        parts.append(icon(kind, 47, y, L))
+        parts.append(f'<text class="ink" x="72" y="{y + 6.5}" font-family="{SANS}" font-weight="600" font-size="19">{label}</text>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" '
+            f'aria-label="Yi Zhang, M.S. student at Nanjing University. Multimodal LLMs, post-training, agentic RL, efficient inference.">'
+            f'<style>{css}</style>' + ''.join(parts) + '</svg>\n')
+
+
 def banner(theme, font_dir):
     c = THEMES[theme]
-    sans = "'YZ Sans', 'Source Sans 3', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-    serif = "'YZ Serif', 'Source Serif 4', Georgia, serif"
-    # approximate advance widths of the pill labels (YZ Sans Semibold, em units)
-    per = {ch: 0.52 for ch in 'abcdeghknopqsuvxyz'}
-    per.update({ch: 0.27 for ch in 'filjtr '}); per.update({ch: 0.6 for ch in 'ABCDEGHKNOPQRSUVXYZ'}); per.update({'L': 0.48, 'M': 0.75, 'T': 0.55, 'w': 0.74, 'm': 0.82})
+    sans, serif = SANS, SERIF
     parts = [f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="14" fill="{c["card"]}" stroke="{c["stroke"]}"/>',
-             f'<text x="40" y="84" font-family="{serif}" font-weight="600" font-size="46" fill="{c["ink"]}" letter-spacing="-0.4">Yi Zhang</text>',
-             f'<text x="42" y="118" font-family="{sans}" font-size="17" fill="{c["muted"]}">M.S. student · Nanjing University · Class of 2028</text>']
-    x = 40
-    for label in ['LLM post-training', 'Multimodal LLMs', 'Agentic RL']:
-        w = width(label, 13.5, per) + 26
-        parts.append(f'<rect x="{x}" y="140" width="{w:.0f}" height="28" rx="14" fill="{c["pill"]}" stroke="{c["pill_line"]}"/>')
-        parts.append(f'<text x="{x + w / 2:.1f}" y="158.5" text-anchor="middle" font-family="{sans}" font-weight="600" font-size="13.5" fill="{c["accent"]}">{label}</text>')
-        x += w + 10
-    # motif: an answer as a paragraph of word-chips, two passages written by the teacher (as on the homepage)
-    rows = [[34, 18, 46, 26, 40, 22, 30], [28, 44, 20, 32, 48, 36, 26], [40, 24, 30, 52, 22, 34, 28], [30, 46, 22, 38, 40]]
-    teacher = {(1, 3), (1, 4), (1, 5), (3, 2), (3, 3)}
-    y0, x0 = 52, 586
-    for r, row in enumerate(rows):
-        xx = x0
-        for col, w in enumerate(row):
-            if xx + w > W - 36:
-                break
-            t = (r, col) in teacher
-            parts.append(f'<rect x="{xx}" y="{y0 + r * 26}" width="{w}" height="11" rx="5.5" fill="{c["chip_t"] if t else c["chip"]}"/>')
-            xx += w + 6
+             f'<text x="40" y="92" font-family="{serif}" font-weight="600" font-size="50" fill="{c["ink"]}" letter-spacing="-0.5">Yi Zhang</text>',
+             f'<text x="42" y="130" font-family="{sans}" font-size="19" fill="{c["muted"]}">M.S. student · Nanjing University · Class of 2028</text>',
+             f'<line x1="500" y1="34" x2="500" y2="{H - 34}" stroke="{c["stroke"]}"/>']
+    for i, (kind, label) in enumerate(ITEMS):
+        y = 54 + i * 34
+        parts.append(icon(kind, 538, y, c))
+        parts.append(f'<text x="562" y="{y + 6}" font-family="{sans}" font-weight="600" font-size="17" fill="{c["ink"]}">{label}</text>')
     style = f'<style>{faces(font_dir)}</style>'
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-            f'aria-label="Yi Zhang, M.S. student at Nanjing University: LLM post-training, multimodal LLMs, agentic RL">'
+            f'aria-label="Yi Zhang, M.S. student at Nanjing University. Multimodal LLMs, post-training, agentic RL, efficient inference.">'
             + style + ''.join(parts) + '</svg>\n')
 
 
@@ -77,7 +107,8 @@ def main():
     args = ap.parse_args()
     for theme in THEMES:
         (ROOT / 'assets' / f'banner-{theme}.svg').write_text(banner(theme, args.fonts), encoding='utf-8')
-    print('wrote assets/banner-light.svg and assets/banner-dark.svg')
+    (ROOT / 'assets' / 'banner-narrow.svg').write_text(banner_narrow(args.fonts), encoding='utf-8')
+    print('wrote assets/banner-light.svg, assets/banner-dark.svg and assets/banner-narrow.svg')
 
 
 if __name__ == '__main__':
