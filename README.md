@@ -6,10 +6,9 @@
 
 ### 🟢 Open to LLM algorithm internships
 
-Available now · 5+ days a week · up to 9 consecutive months
+![Available now](https://img.shields.io/badge/Available_now-2ea44f?style=flat) ![5+ days a week](https://img.shields.io/badge/5%2B_days_a_week-2d5a96?style=flat) ![Up to 9 consecutive months](https://img.shields.io/badge/Up_to_9_consecutive_months-2d5a96?style=flat)
 
-🏠&nbsp;[Homepage](https://hey-chillax.github.io) &nbsp;·&nbsp; 📄&nbsp;[CV&nbsp;(PDF,&nbsp;Chinese)](https://hey-chillax.github.io/files/Yi_Zhang_CV_zh.pdf) &nbsp;·&nbsp; 🎓&nbsp;[Google&nbsp;Scholar](https://scholar.google.com/citations?user=SpbemaUAAAAJ)<br>
-✉️&nbsp;[yizhang200304@gmail.com](mailto:yizhang200304@gmail.com) &nbsp;·&nbsp; [yizhang@smail.nju.edu.cn](mailto:yizhang@smail.nju.edu.cn)
+🏠&nbsp;[Homepage](https://hey-chillax.github.io) &nbsp;·&nbsp; 📄&nbsp;[CV&nbsp;(PDF,&nbsp;Chinese)](https://hey-chillax.github.io/files/Yi_Zhang_CV_zh.pdf) &nbsp;·&nbsp; 🎓&nbsp;[Google&nbsp;Scholar](https://scholar.google.com/citations?user=SpbemaUAAAAJ) &nbsp;·&nbsp; ✉️&nbsp;[yizhang@smail.nju.edu.cn](mailto:yizhang@smail.nju.edu.cn)
 
 ### 🔬 Projects
 
@@ -21,12 +20,14 @@ A 4B teacher steps into the 1.7B student's rollout only where the student would 
 Steps that start from the same environment state in different rollouts are compared by the return that followed, so every step gets its own credit, with no critic and no extra rollouts.<br>
 ALFWorld **98.6% / 94.0%** (seen / unseen) after SFT and 100 RL steps; **82.9% vs 70.7%** against GRPO from the base model · [report](https://hey-chillax.github.io/projects/stepcredit-rl.html)
 
-<sub>Single-seed results. Each report cites the original papers the methods are adapted from.</sub>
+### 🛠️ Toolbox
+
+**Post-training** · SFT, on-policy distillation, RL with PPO / DPO / GRPO / DAPO / GSPO, reward design, data synthesis and filtering<br>
+**Agents** · agentic RL with step-level credit assignment; ReAct, context engineering, agent memory, MCP<br>
+**Models** · MLLM architecture changes, ViT (SigLIP, DINO, SAM), MRoPE; Qwen3-VL, Qwen3.5 (Gated DeltaNet), DeepSeek-V3.2 (MLA, DSA), Mamba-3, MoE<br>
+**Systems** · FSDP2, veRL, vLLM, FlashAttention, speculative decoding (MTP), KV-cache compression; Slurm clusters, 16,000+ H100 GPU-hours
 
 ### 📚 Publications & honors
 
-Four SCI journal papers and one EI conference paper as first author · B.Eng. ranked 1st of 541 in the major · National Scholarship · Xiaomi Special Scholarship
-
-### 🛠️ Toolbox
-
-PyTorch · FSDP2 · veRL · vLLM · Slurm, 16,000+ H100 GPU-hours · also [openreview-paper-digest](https://github.com/Hey-Chillax/openreview-paper-digest), which filters OpenReview papers by keywords and review scores and reads each one with an LLM
+**Publications** · four SCI journal papers and one EI conference paper as first author (IEEE Photonics Journal, JOSA B, Applied Physics B, Applied Sciences, Proc. SPIE)<br>
+**Honors** · ranked 1st of 541 in the B.Eng. major · National Scholarship · Xiaomi Special Scholarship (5 recipients university-wide) · National First Prize, “Challenge Cup” · Honorable Mention, MCM

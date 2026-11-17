@@ -38,6 +38,12 @@ def icon(kind, cx, cy, c):
     """Small line icons in the accent colour."""
     st = f'fill="{c["pill"]}" stroke="{c["accent"]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"'
     ln = f'fill="none" stroke="{c["accent"]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"'
+    if kind == 'slate':   # clapperboard: the board, and the striped clapstick hinged at its top-left corner
+        hx, hy = cx - 10, cy - 3.2
+        return (f'<rect x="{cx - 10}" y="{cy - 3}" width="20" height="12.5" rx="2.5" {st}/>'
+                f'<g transform="rotate(-14 {hx} {hy})"><rect x="{cx - 10}" y="{cy - 7.6}" width="20" height="4.4" rx="1.2" {st}/>'
+                f'<path d="M{cx - 5.2},{cy - 7.6} l-2.6,4.4 M{cx + 0.4},{cy - 7.6} l-2.6,4.4 M{cx + 6},{cy - 7.6} l-2.6,4.4" {ln}/></g>'
+                f'<path d="M{cx - 10},{cy + 1.2} H{cx + 10}" {ln}/>')
     if kind == 'image':
         return (f'<rect x="{cx - 10}" y="{cy - 8}" width="20" height="16" rx="3" {st}/>'
                 f'<path d="M{cx - 7},{cy + 5} L{cx - 2},{cy - 1} L{cx + 2},{cy + 3} L{cx + 4},{cy + 1} L{cx + 7},{cy + 5}" {ln}/>'
@@ -54,7 +60,7 @@ def icon(kind, cx, cy, c):
     raise ValueError(kind)
 
 
-ITEMS = [('image', 'Multimodal LLMs'), ('relay', 'Post-training · SFT → RL → OPD'), ('robot', 'Agentic RL'), ('bolt', 'Efficient inference')]
+ITEMS = [('slate', 'Multimodal LLMs'), ('relay', 'Post-training · SFT → RL → OPD'), ('robot', 'Agentic RL'), ('bolt', 'Efficient inference')]
 SANS = "'YZ Sans', 'Source Sans 3', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
 SERIF = "'YZ Serif', 'Source Serif 4', Georgia, serif"
 
