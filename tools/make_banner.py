@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Draw the profile README's banner: assets/banner-light.svg and banner-dark.svg, and banner-narrow.svg for phones.
+"""Draw the profile README's banner (assets/banner-light.svg, banner-dark.svg, banner-narrow.svg for phones) and the
+status card under it (assets/status-light.svg, status-dark.svg, status-narrow.svg; the user picked this form on 11-18).
 
-The fonts are the subsets used by the homepage (repo hey-chillax.github.io, assets/fonts), inlined so the banner
-renders the same in every browser when GitHub shows it as an <img>. The banner holds only the name, affiliation and
-research directions; everything a reader may want to copy or search (status, links, results) stays in the README text.
+The fonts are the subsets used by the homepage (repo hey-chillax.github.io, assets/fonts), inlined so the images
+render the same in every browser when GitHub shows them as an <img>. The banner holds the name, affiliation and
+research directions; the status card holds the availability, which is repeated in its alt text. Links and results stay
+in the README text.
 
     python3 tools/make_banner.py --fonts ../hey-chillax.github.io/assets/fonts
 """
@@ -90,6 +92,70 @@ def banner_narrow(font_dir):
             f'<style>{css}</style>' + ''.join(parts) + '</svg>\n')
 
 
+GREEN = {'light': dict(fill='#e8f5ec', ink='#1f8a3a', line='#b7dfc3'), 'dark': dict(fill='#13261a', ink='#4cc26a', line='#245c34')}
+STATUS = 'Open to LLM algorithm internships'
+PILLS = ['Available now', '5+ days a week', '6+ consecutive months']    # as on the resume (6+ months since 11-18)
+STATUS_ALT = 'Open to LLM algorithm internships: available now, 5+ days a week, 6+ consecutive months.'
+
+
+def semibold_widths(font_dir):
+    """Advance widths (em) of YZ Sans Semibold, from the homepage's tools/data/font_widths.json."""
+    import json
+    data = json.loads((font_dir.parent.parent / 'tools' / 'data' / 'font_widths.json').read_text(encoding='utf-8'))
+    return data['widths']['600']
+
+
+def pill_w(label, size, per):
+    return width(label, size, per) + 26
+
+
+def pills(x, y, labels, size, per, colours, gap=10):
+    """Rounded pills left to right from x, centred on y; colours[i] = (fill, ink, line) or CSS class prefixes."""
+    out = []
+    for label, (fill, ink, line) in zip(labels, colours):
+        w = pill_w(label, size, per)
+        paint = (f'fill="{fill}" stroke="{line}"' if fill.startswith('#') else f'class="{fill}"')
+        tpaint = (f'fill="{ink}"' if ink.startswith('#') else f'class="{ink}"')
+        out.append(f'<rect x="{x:.1f}" y="{y - 15}" width="{w:.1f}" height="30" rx="15" {paint}/>'
+                   f'<text x="{x + w / 2:.1f}" y="{y + 5.3:.1f}" text-anchor="middle" font-family="{SANS}" font-weight="600" '
+                   f'font-size="{size}" {tpaint}>{label}</text>')
+        x += w + gap
+    return ''.join(out)
+
+
+def status(theme, font_dir):
+    """One row: the open-to-work line on the left, the three availability pills right-aligned."""
+    c, g, per = THEMES[theme], GREEN[theme], semibold_widths(font_dir)
+    h = 64
+    total = sum(pill_w(t, 15, per) for t in PILLS) + 10 * (len(PILLS) - 1)
+    colours = [(g['fill'], g['ink'], g['line'])] + [(c['pill'], c['accent'], c['pill_line'])] * 2
+    parts = [f'<rect x="1" y="1" width="{W - 2}" height="{h - 2}" rx="14" fill="{c["card"]}" stroke="{c["stroke"]}"/>',
+             f'<circle cx="34" cy="{h / 2}" r="11" fill="{g["fill"]}"/><circle cx="34" cy="{h / 2}" r="5.5" fill="{g["ink"]}"/>',
+             f'<text x="56" y="{h / 2 + 7}" font-family="{SANS}" font-weight="600" font-size="20" fill="{c["ink"]}">{STATUS}</text>',
+             pills(W - 20 - total, h / 2, PILLS, 15, per, colours)]
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {h}" width="{W}" height="{h}" role="img" aria-label="{STATUS_ALT}">'
+            f'<style>{faces(font_dir)}</style>' + ''.join(parts) + '</svg>\n')
+
+
+def status_narrow(font_dir):
+    """The status card for screens under 600 px: the line, then the pills on two rows; one file for both themes."""
+    L, D, per = THEMES['light'], THEMES['dark'], semibold_widths(font_dir)
+    w, h = 440, 156
+    keys = ('card', 'stroke', 'ink', 'accent', 'pill', 'pill_line')
+    var = lambda c, gr: ';'.join([f'--{k}:{c[k]}' for k in keys] + [f'--g{k}:{gr[k]}' for k in ('fill', 'ink', 'line')])
+    css = (faces(font_dir) + f':root{{{var(L, GREEN["light"])}}}@media (prefers-color-scheme: dark){{:root{{{var(D, GREEN["dark"])}}}}}'
+           '.card{fill:var(--card);stroke:var(--stroke)}.ink{fill:var(--ink)}'
+           '.pg{fill:var(--gfill);stroke:var(--gline)}.tg{fill:var(--gink)}.pb{fill:var(--pill);stroke:var(--pill_line)}.tb{fill:var(--accent)}'
+           '.dot0{fill:var(--gfill)}.dot1{fill:var(--gink)}')
+    parts = [f'<rect class="card" x="1" y="1" width="{w - 2}" height="{h - 2}" rx="14"/>',
+             '<circle class="dot0" cx="38" cy="40" r="10.5"/><circle class="dot1" cx="38" cy="40" r="5.2"/>',
+             f'<text class="ink" x="58" y="46.5" font-family="{SANS}" font-weight="600" font-size="19">{STATUS}</text>',
+             pills(28, 86, PILLS[:2], 15, per, [('pg', 'tg', ''), ('pb', 'tb', '')]),
+             pills(28, 124, PILLS[2:], 15, per, [('pb', 'tb', '')])]
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{STATUS_ALT}">'
+            f'<style>{css}</style>' + ''.join(parts) + '</svg>\n')
+
+
 def banner(theme, font_dir):
     c = THEMES[theme]
     sans, serif = SANS, SERIF
@@ -114,7 +180,10 @@ def main():
     for theme in THEMES:
         (ROOT / 'assets' / f'banner-{theme}.svg').write_text(banner(theme, args.fonts), encoding='utf-8')
     (ROOT / 'assets' / 'banner-narrow.svg').write_text(banner_narrow(args.fonts), encoding='utf-8')
-    print('wrote assets/banner-light.svg, assets/banner-dark.svg and assets/banner-narrow.svg')
+    for theme in THEMES:
+        (ROOT / 'assets' / f'status-{theme}.svg').write_text(status(theme, args.fonts), encoding='utf-8')
+    (ROOT / 'assets' / 'status-narrow.svg').write_text(status_narrow(args.fonts), encoding='utf-8')
+    print('wrote assets/banner-{light,dark,narrow}.svg and assets/status-{light,dark,narrow}.svg')
 
 
 if __name__ == '__main__':

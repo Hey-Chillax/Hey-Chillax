@@ -4,9 +4,11 @@
   <img alt="Yi Zhang. M.S. student at Nanjing University, Class of 2028. Multimodal LLMs, post-training (SFT → RL → OPD), agentic RL, efficient inference." src="assets/banner-light.svg" width="100%">
 </picture>
 
-### 🟢 Open to LLM algorithm internships
-
-![Available now](https://img.shields.io/badge/Available_now-2ea44f?style=flat) ![5+ days a week](https://img.shields.io/badge/5%2B_days_a_week-2d5a96?style=flat) ![Up to 9 consecutive months](https://img.shields.io/badge/Up_to_9_consecutive_months-2d5a96?style=flat)
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/status-narrow.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/status-dark.svg">
+  <img alt="Open to LLM algorithm internships: available now, 5+ days a week, 6+ consecutive months." src="assets/status-light.svg" width="100%">
+</picture>
 
 🏠&nbsp;[Homepage](https://hey-chillax.github.io) &nbsp;·&nbsp; 📄&nbsp;[CV&nbsp;(PDF,&nbsp;Chinese)](https://hey-chillax.github.io/files/Yi_Zhang_CV_zh.pdf) &nbsp;·&nbsp; 🎓&nbsp;[Google&nbsp;Scholar](https://scholar.google.com/citations?user=SpbemaUAAAAJ) &nbsp;·&nbsp; ✉️&nbsp;[yizhang@smail.nju.edu.cn](mailto:yizhang@smail.nju.edu.cn)
 
@@ -22,10 +24,12 @@ ALFWorld **98.6% / 94.0%** (seen / unseen) after SFT and 100 RL steps; **82.9% v
 
 ### 🛠️ Toolbox
 
-**Post-training** · SFT, on-policy distillation, RL with PPO / DPO / GRPO / DAPO / GSPO, reward design, data synthesis and filtering<br>
-**Agents** · agentic RL with step-level credit assignment; ReAct, context engineering, agent memory, MCP<br>
-**Models** · MLLM architecture changes, ViT (SigLIP, DINO, SAM), MRoPE; Qwen3-VL, Qwen3.5 (Gated DeltaNet), DeepSeek-V3.2 (MLA, DSA), Mamba-3, MoE<br>
-**Systems** · FSDP2, veRL, vLLM, FlashAttention, speculative decoding (MTP), KV-cache compression; Slurm clusters, 16,000+ H100 GPU-hours
+**Models & architectures** · Qwen3-VL, Qwen3.5 (Gated DeltaNet), Qwen3.8-Flash-Next (QSA, gated residual), DeepSeek-V3.2 (MLA, DSA), DeepSeek-V4 (mHC, CSA / HCA), Mamba-3; MoE, DiT, TTT, Loop Transformer<br>
+**Multimodal** · MLLM architecture changes, ViT (SigLIP, DINO, SAM), MRoPE; modality alignment and multi-stage training, data mixing and cleaning<br>
+**Agent** · Agentic RL (credit assignment); ReAct, context engineering, agent memory, agent harness; MCP, Skills<br>
+**Post-training** · Data synthesis, data filtering, SFT, LoRA; PPO, DPO, GRPO, DAPO, GSPO, OPD; reward design<br>
+**Training systems** · Multi-GPU distributed training, FSDP2, veRL, mixed precision; experienced with Slurm clusters, 16,000+ H100 GPU-hours in total<br>
+**Inference** · vLLM, FlashAttention, speculative decoding (MTP, DFlash), KV cache (pruning, low-rank, PagedAttention)
 
 ### 📚 Publications & honors
 
